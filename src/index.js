@@ -1,8 +1,8 @@
-import connectToComponentState from './connect'
-import componentsReducer from './reducer'
+import connect from './connect'
+import reactStateReduxReducer from './reducer'
 
 export {
-  connectToComponentState,
-  componentsReducer
+  connect,
+  reactStateReduxReducer
 }
 

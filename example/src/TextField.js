@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { connectToComponentState } from '../../src/index'
+import { connect } from '../../src/index'
 
 const mapStateToProps = (state, componentState) => ({
   value: componentState
@@ -22,4 +22,4 @@ const TextField = ({ value, dispatch, dispatchToThis }) => <div>
   />
 </div>
 
-export default connectToComponentState(mapStateToProps)(TextField, componentReducer)
+export default connect(mapStateToProps)(TextField, componentReducer)

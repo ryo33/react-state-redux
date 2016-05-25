@@ -8,7 +8,7 @@ const initialState = {
 
 const createComponent = (reducer, state) => ({ reducer, state })
 
-export default function componentsReducer(state = initialState, action) {
+export default function reducer(state = initialState, action) {
   const { type, payload, meta } = action
   switch (type) {
     case ADD_COMPONENT:

@@ -4,14 +4,14 @@ import { createStore, combineReducers, applyMiddleware } from 'redux'
 import { Provider } from 'react-redux'
 import createLogger from 'redux-logger';
 
-import { componentsReducer } from '../../src/index'
+import { reactStateReduxReducer } from '../../src/index'
 
 import Example from './Example'
 
 const logger = createLogger()
 const store = createStore(
   combineReducers({
-    reactStateRedux: componentsReducer,
+    reactStateRedux: reactStateReduxReducer,
   }),
   applyMiddleware(logger)
 )
