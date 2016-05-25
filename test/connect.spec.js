@@ -1,11 +1,12 @@
+import './browser_setup'
+
 import { expect } from 'chai'
 import React, { Component } from 'react'
 import { createStore } from 'redux'
 import { Provider } from 'react-redux'
 import TestUtils from 'react-addons-test-utils'
 
-import './browser_setup'
-import { getStore, reducerA, reducerB } from './helper.js'
+import { getStore, reducerA, reducerB, counter } from './helper.js'
 
 import connect from '../src/connect'
 import { PROPS_ID } from '../src/constants'
@@ -16,7 +17,7 @@ describe('connect', () => {
       return <div />
     }
   }
-  const Connect = connect()(Child, state => state)
+  const Connect = connect(undefined, undefined, undefined, undefined, { withRef: true })(Child, counter)
 
   class A extends Component {
     render() {
@@ -55,6 +56,40 @@ describe('connect', () => {
     expect(child.props.b).to.equal('b')
     expect(child.props.children).to.equal('c')
     expect(child.props[PROPS_ID]).to.match(/^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/)
+  })
+
+  it('should add/remove a component to redux store by mount/unmount', () => {
+    const store = getStore()
+
+    const tree = TestUtils.renderIntoDocument(
+      <Provider store={store}>
+        <Connect />
+      </Provider>
+    )
+
+    const child = TestUtils.findRenderedComponentWithType(tree, Child)
+    const connect = TestUtils.findRenderedComponentWithType(tree, Connect)
+    const wrappedComponent = connect.getWrappedInstance()
+    const componentID = child.props[PROPS_ID]
+    expect(store.getState().reactStateRedux.components).to.have.deep.property(
+      componentID + '.state', 0
+    )
+    child.props.dispatchToThis({ type: 'INCREMENT' })
+    expect(store.getState().reactStateRedux.components).to.have.deep.property(
+      componentID + '.state', 1
+    )
+    connect.getWrappedInstance().componentWillMount()
+    expect(store.getState().reactStateRedux.components).to.have.deep.property(
+      componentID + '.state', 1
+    )
+    connect.getWrappedInstance().componentWillUnmount()
+    child.props.dispatchToThis({ type: 'INCREMENT' })
+    child.props.dispatchToThis({ type: 'INCREMENT' })
+    child.props.dispatchToThis({ type: 'INCREMENT' })
+    connect.getWrappedInstance().componentWillMount()
+    expect(store.getState().reactStateRedux.components).to.have.deep.property(
+      componentID + '.state', 1
+    )
   })
 
   it('dispatch ADD to both', () => {

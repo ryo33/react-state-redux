@@ -1,6 +1,6 @@
 import { fromJS } from 'immutable'
 
-import { INIT, ADD_COMPONENT, REMOVE_COMPONENT, DISPATCH_TO } from './constants'
+import { ADD_COMPONENT, REMOVE_COMPONENT, DISPATCH_TO } from './constants'
 
 const initialState = {
   components: {}
@@ -14,9 +14,9 @@ export default function componentsReducer(state = initialState, action) {
     case ADD_COMPONENT:
       {
         const { id, reducer } = payload
-        const initialState = reducer(undefined, { type: INIT })
+        const componentState = payload.state
         return fromJS(state)
-          .setIn(['components', id], createComponent(reducer, initialState)).toJS()
+          .setIn(['components', id], createComponent(reducer, componentState)).toJS()
       }
     case REMOVE_COMPONENT:
       {
@@ -28,15 +28,17 @@ export default function componentsReducer(state = initialState, action) {
       {
         const { id, action } = payload
         return fromJS(state).updateIn(['components', id], (component) => {
-          return component
-          .set('state', component.get('reducer')(component.get('state'), action))
+          if (component) {
+            return component
+              .set('state', component.get('reducer')(component.get('state'), action))
+          }
         }).toJS()
       }
     default:
       return fromJS(state).update('components', (components) => {
         return components.map((component) => {
           return component
-          .set('state', component.get('reducer')(component.get('state'), action))
+            .set('state', component.get('reducer')(component.get('state'), action))
         })
       }).toJS()
   }

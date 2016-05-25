@@ -16,7 +16,7 @@ describe('reducer', () => {
   it('dispatch ADD_COMPONENT', () => {
     expect(reducer(state, {
       type: ADD_COMPONENT,
-      payload: { id: 'c', reducer: reducerA }
+      payload: { id: 'c', reducer: reducerA, state: 0 }
     })).toEqual({
       components: {
         a: { reducer: reducerA, state: 0 },

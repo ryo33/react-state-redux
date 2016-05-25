@@ -4,12 +4,12 @@ import hoistStatics from 'hoist-non-react-statics'
 import { fromJS } from 'immutable'
 import uuid from 'uuid'
 
-import { ADD_COMPONENT, PROPS_ID, DISPATCH_TO } from './constants'
+import { INIT, ADD_COMPONENT, REMOVE_COMPONENT, PROPS_ID, DISPATCH_TO } from './constants'
 
 const defaultMapStateToProps = (state, componentState) => ({})
 const defaultMapDispatchToProps = (dispatch, dispatchToThis) => ({ dispatch, dispatchToThis })
 
-export default function connectToComponentState(mapStateToProps, mapDispatchToProps, mergeProps, options = {}) {
+export default function connectToComponentState(mapStateToProps, mapDispatchToProps, mergeProps, options, options2) {
   const mapState = mapStateToProps || defaultMapStateToProps
   const mapDispatch = mapDispatchToProps || defaultMapDispatchToProps
   const finalMapStateToProps = (state, props) => {
@@ -38,25 +38,55 @@ export default function connectToComponentState(mapStateToProps, mapDispatchToPr
       constructor(props, context) {
         super(props, context)
         this.componentID = uuid.v4()
-        props.dispatch({
+        const initialState = reducer(undefined, { type: INIT })
+        this.state = {
+          componentState: initialState
+        }
+      }
+
+      componentWillMount() {
+        this.props.dispatch({
           type: ADD_COMPONENT,
           payload: {
             id: this.componentID,
-            reducer
+            reducer,
+            state: this.state.componentState
           }
         })
+      }
+
+      componentWillUnmount() {
+        this.props.dispatch({
+          type: REMOVE_COMPONENT,
+          payload: {
+            id: this.componentID,
+          }
+        })
+      }
+
+      componentWillReceiveProps(nextProps) {
+        const component = nextProps.reactStateRedux.components[this.componentID]
+        if (component) {
+          this.setState({
+            componentState: component.state
+          })
+        }
       }
 
       render() {
         const props = fromJS(this.props)
         .set(PROPS_ID, this.componentID)
         .toJS()
-        return createElement(
-          finalWrappedComponent,
-          props
-        )
+        return this.props.reactStateRedux.components[this.componentID]
+          ? createElement(
+            finalWrappedComponent,
+            props
+          )
+          : null
       }
     }
-    return connect()(hoistStatics(ConnectToComponentState, finalWrappedComponent))
+    return connect(
+      ({ reactStateRedux }) => ({ reactStateRedux }), undefined, undefined, options2
+    )(hoistStatics(ConnectToComponentState, finalWrappedComponent))
   }
 }
