@@ -2,7 +2,7 @@ import expect from 'expect'
 import { Map } from 'immutable'
 
 import reducer from '../src/reducer'
-import { KEY_META, ADD_COMPONENT, REMOVE_COMPONENT } from '../src/constants'
+import { DISPATCH_TO, ADD_COMPONENT, REMOVE_COMPONENT } from '../src/constants'
 import { reducerA, reducerB } from './helper'
 
 describe('reducer', () => {
@@ -51,9 +51,14 @@ describe('reducer', () => {
 
   it('dispatch ADD to A', () => {
     expect(reducer(state, {
-      type: 'ADD',
-      payload: 10,
-      meta: Map().set(KEY_META, {id: 'a'}).toJS()
+      type: DISPATCH_TO,
+      payload: {
+        id: 'a',
+        action: {
+          type: 'ADD',
+          payload: 10
+        }
+      }
     })).toEqual({
       components: {
         a: { reducer: reducerA, state: 10 },
@@ -64,9 +69,14 @@ describe('reducer', () => {
 
   it('dispatch ADD to B', () => {
     expect(reducer(state, {
-      type: 'ADD',
-      payload: 10,
-      meta: Map().set(KEY_META, {id: 'b'}).toJS()
+      type: DISPATCH_TO,
+      payload: {
+        id: 'b',
+        action: {
+          type: 'ADD',
+          payload: 10
+        }
+      }
     })).toEqual({
       components: {
         a: { reducer: reducerA, state: 0 },

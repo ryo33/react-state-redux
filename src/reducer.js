@@ -1,6 +1,6 @@
 import { fromJS } from 'immutable'
 
-import { INIT, ADD_COMPONENT, REMOVE_COMPONENT, KEY_META } from './constants'
+import { INIT, ADD_COMPONENT, REMOVE_COMPONENT, DISPATCH_TO } from './constants'
 
 const initialState = {
   components: {}
@@ -24,22 +24,20 @@ export default function componentsReducer(state = initialState, action) {
         return fromJS(state)
           .deleteIn(['components', id]).toJS()
       }
-    default:
-      if (meta && meta[KEY_META]) {
-        const { id } = meta[KEY_META]
-        return fromJS(state)
-          .updateIn(['components', id], (component) => {
-            return component
-              .set('state', component.get('reducer')(component.get('state'), action))
-          }).toJS()
-      } else {
-        return fromJS(state)
-          .update('components', (components) =>
-            components.map((component) => {
-              return component
-              .set('state', component.get('reducer')(component.get('state'), action))
-            })
-           ).toJS()
+    case DISPATCH_TO:
+      {
+        const { id, action } = payload
+        return fromJS(state).updateIn(['components', id], (component) => {
+          return component
+          .set('state', component.get('reducer')(component.get('state'), action))
+        }).toJS()
       }
+    default:
+      return fromJS(state).update('components', (components) => {
+        return components.map((component) => {
+          return component
+          .set('state', component.get('reducer')(component.get('state'), action))
+        })
+      }).toJS()
   }
 }

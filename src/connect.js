@@ -4,7 +4,7 @@ import hoistStatics from 'hoist-non-react-statics'
 import { fromJS } from 'immutable'
 import uuid from 'uuid'
 
-import { ADD_COMPONENT, PROPS_ID, KEY_META } from './constants'
+import { ADD_COMPONENT, PROPS_ID, DISPATCH_TO } from './constants'
 
 const defaultMapStateToProps = (state, componentState) => ({})
 const defaultMapDispatchToProps = (dispatch, dispatchToThis) => ({ dispatch, dispatchToThis })
@@ -19,9 +19,12 @@ export default function connectToComponentState(mapStateToProps, mapDispatchToPr
   }
   const finalMapDispatchToProps = (dispatch, props) => {
     const id = props[PROPS_ID]
-    const dispatchToThis = (action) => dispatch(
-      fromJS(action).setIn(['meta', KEY_META, 'id'], id).toJS()
-    )
+    const dispatchToThis = (action) => dispatch({
+      type: DISPATCH_TO,
+      payload: {
+        id, action
+      }
+    })
     return mapDispatch(dispatch, dispatchToThis)
   }
   return (wrappedComponent, reducer) => {
