@@ -9,7 +9,7 @@ It helps us move states to the Redux store from React components, especially whe
 
 ## Example
 Suppose we have a simple textfield component like this:  
-```
+```javascript
 import React, { Component } from 'react'
 
 export default class TextField extends Component {
@@ -34,7 +34,7 @@ export default class TextField extends Component {
 }
 ```
 We can rewrite it as a stateless component like this:  
-```
+```javascript
 import React from 'react'
 
 import { connect } from 'react-state-redux'
@@ -63,19 +63,74 @@ const TextField = ({ value, dispatchToThis }) => <div>
 export default connect(mapStateToProps)(TextField, componentReducer)
 ```
 
-## [WIP]API
+## Installation
+`npm install --save react-state-redux`  
 
-### `connect([mapStateToProps], [mapDispatchToProps], [mergeProps], [options])`
+## Tutorial
+```javascript
+import { Provider } from 'react-redux'
+import { reactStateReduxReducer } from 'react-state-redux'
 
-#### Arguments
+// Add the reducer to your store on the `reactStateRedux` key
+const store = createStore(
+  combineReducers({
+    ...reducers, // Your reducers
+    reactStateRedux: reactStateReduxReducer
+  })
+)
 
-##### `mapStateToProps`
+// Prepare a component.
+const MyComponent = ({ dispatch, dispatchToThis, componentState }) => <div>
+  <DoSomething />
+</div>
 
-##### `mapDispatchToProps`
+// Prepare a reducer to handle actions and return a component state.
+function componentReducer(componentState = initialState, action) {
+  switch (action.type) {
+    case 'SOMETHING':
+      return doSomething(componentState)
+    default:
+      return componentState
+  }
+}
+
+// Connect to a Redux store and a component state.
+const ConnectedMyComponent = connect(
+  (state, componentState) => ({ componentState })
+)(MyComponent, componentReducer)
+
+// Use the connected component.
+ReactDOM.render(
+  <Provider store={store}>
+    <ConnectedMyComponent />
+  </Provider>,
+  node
+)
+```
+
+## API
+Please see [React Redux API](https://github.com/reactjs/react-redux/blob/master/docs/api.md#arguments) if you have not done.  
+
+### `connect([mapStateToProps], [mapDispatchToProps], [mergeProps], [options]) => (component, componentReducer) => connectedComponent`
+
+##### `mapStateToProps(state, componentState, [ownProps]) => stateProps`
+- `state` The same as `React Redux`'s one
+- `componentState` The state of the component
+- `ownProps` The same as `React Redux`'s one
+
+##### `mapDispatchToProps(dispatch, dispatchToThis, [ownProps]) => dispatchProps`
+- `dispatch` The same as `React Redux`'s one
+- `dispatchToThis` The function to dispatch an action to the component only
+- `ownProps` The same as `React Redux`'s one
 
 ##### `mergeProps` and `options`
-They will be passed to `React Redux's connect` directly.  
-See [React Redux API](https://github.com/reactjs/react-redux/blob/master/docs/api.md#arguments).  
+They will be passed to the `React Redux's connect` directly.  
+
+##### `component`
+A React component you want to connect to a Redux store and a component state.  
+
+##### `componentReducer(componentState, action): newComponentState`
+A reducer to handle actions which is dispatched by `dispatchToThis` from the `component` and `dispatch` from anywhere.  
 
 ## License
 MIT
