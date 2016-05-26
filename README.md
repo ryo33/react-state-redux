@@ -1,8 +1,8 @@
 React State Redux
 ====
-Clear away states from React components.
+Clear away states from React components.  
 
-Note: The name of this project is temporary yet.
+[![npm version](https://badge.fury.io/js/react-state-redux.svg)](https://badge.fury.io/js/react-state-redux)
 
 ## Description
 It helps us move states to the Redux store from React components, especially when your components is dynamically used in many places.  
