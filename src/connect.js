@@ -15,7 +15,7 @@ export default function connectToComponentState(mapStateToProps, mapDispatchToPr
   const finalMapStateToProps = (state, props) => {
     const id = props[PROPS_ID]
     const componentState = state.reactStateRedux.components[id].state
-    return mapState(state, componentState)
+    return mapState(state, componentState, props)
   }
   const finalMapDispatchToProps = (dispatch, props) => {
     const id = props[PROPS_ID]
@@ -25,7 +25,7 @@ export default function connectToComponentState(mapStateToProps, mapDispatchToPr
         id, action
       }
     })
-    return mapDispatch(dispatch, dispatchToThis)
+    return mapDispatch(dispatch, dispatchToThis, props)
   }
   return (wrappedComponent, reducer) => {
     const finalWrappedComponent = connect(
